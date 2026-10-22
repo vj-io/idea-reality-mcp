@@ -330,6 +330,7 @@ async def _extract_keywords_via_haiku(idea_text: str) -> list[str] | None:
         import anthropic
 
         client = anthropic.AsyncAnthropic(api_key=api_key, timeout=30.0)
+        # offramp: kept on claude-haiku-4-5 — parity 18.1% < 95%
         message = await client.messages.create(
             model="claude-haiku-4-5",
             # temperature=0: same idea text must expand to the same search
@@ -384,6 +385,12 @@ Rules:
 - Output ONLY a JSON array of exactly 3 strings. No markdown, no explanation, no code fences."""
 
 
+NEMOTRON_USER_SUFFIX = (
+    "\n\nReply with a JSON array of exactly 3 strings. No markdown, no explanation, "
+    "no code fences."
+)
+
+
 async def _generate_pivot_hints_llm(
     idea_text: str,
     reality_signal: int,
@@ -396,7 +403,7 @@ async def _generate_pivot_hints_llm(
     Returns a list of 3 hint strings, or *None* on any failure.
     """
     lang = _sanitize_lang(lang)
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("NEBIUS_API_KEY")
     if not api_key:
         logger.info("[PIVOT] skipped — no ANTHROPIC_API_KEY")
         return None
@@ -428,20 +435,21 @@ Evidence:
 {evidence_text}"""
 
     try:
-        import anthropic
+        from offramp_client import token_factory_async_client
 
-        client = anthropic.AsyncAnthropic(api_key=api_key, timeout=30.0)
-        message = await client.messages.create(
-            model="claude-haiku-4-5",
-            # temperature=0: same idea text must expand to the same search
-            # queries, or the whole report is unreproducible. Default is 1.0.
-            temperature=0,
+        client = token_factory_async_client(timeout=30.0)
+        message = await client.chat.completions.create(
+            model="nvidia/nemotron-3-super-120b-a12b",
             max_tokens=500,
-            system=_PIVOT_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
+            temperature=0.0,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+            messages=[
+                {"role": "system", "content": _PIVOT_SYSTEM_PROMPT},
+                {"role": "user", "content": (user_prompt) + NEMOTRON_USER_SUFFIX},
+            ],
         )
 
-        raw = message.content[0].text.strip()
+        raw = (message.choices[0].message.content or "").strip()
 
         # Strip markdown code fences if present
         if raw.startswith("```"):

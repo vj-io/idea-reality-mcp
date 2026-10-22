@@ -345,27 +345,34 @@ Rules:
 - Output ONLY a JSON array of strings. No explanation."""
 
 
+NEMOTRON_USER_SUFFIX = "\n\nReply with ONLY a JSON array of strings. No explanation."
+
+
 async def _generate_search_angles(idea_text: str) -> list[str]:
     """Use Haiku to generate 3-5 distinct search angles from one idea.
 
     Fallback: extract query strings from signal_result evidence.
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("NEBIUS_API_KEY")
     if not api_key:
         return [idea_text]
 
     try:
-        import anthropic
+        from offramp_client import token_factory_async_client
 
-        client = anthropic.AsyncAnthropic(api_key=api_key, timeout=30.0)
-        message = await client.messages.create(
-            model="claude-haiku-4-5",
+        client = token_factory_async_client(timeout=30.0)
+        message = await client.chat.completions.create(
+            model="nvidia/nemotron-3-super-120b-a12b",
             max_tokens=300,
-            system=_ANGLE_PROMPT,
-            messages=[{"role": "user", "content": idea_text}],
+            temperature=0.0,
+            extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+            messages=[
+                {"role": "system", "content": _ANGLE_PROMPT},
+                {"role": "user", "content": (idea_text) + NEMOTRON_USER_SUFFIX},
+            ],
         )
 
-        raw = message.content[0].text.strip()
+        raw = (message.choices[0].message.content or "").strip()
 
         # Strip markdown code fences if present
         if raw.startswith("```"):
@@ -702,6 +709,7 @@ async def _generate_strategic_analysis(
         import anthropic
 
         client = anthropic.AsyncAnthropic(api_key=api_key, timeout=30.0)
+        # offramp: kept on claude-sonnet-4-20250514 — parity 33.3% < 95%
         message = await client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
