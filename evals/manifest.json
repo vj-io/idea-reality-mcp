@@ -1,0 +1,33 @@
+{
+ "files": {
+  "audit.json": "97c157d26ed1b08a6a31936042d3a27865dc8b155ae825b2a76cab8be54e1fcb",
+  "cases/cs_01.jsonl": "dcef3a0d5f4726d8880058a7b18786f8082345a58a7472c7830a8d7a7ebd9892",
+  "cases/cs_02.jsonl": "97a8f40d5bb1f798659764bca40bd0707f1d559e7929985ee1cba9bcaee15b79",
+  "cases/cs_04.jsonl": "e17e4ca84c6e6fd761ddefe298b34eac5ec38f0e69ca09353e4d507180070e10",
+  "cases/cs_05.jsonl": "45bf27eb32f4c8b849cdf2053d3bb55fe64f28f2159fabb6b34b58344c41de96",
+  "closed/cs_01.jsonl": "b81a0e217c1d265eb9c5ba7d68504e826b079219adbc44b16b50d51a46a0e178",
+  "closed/cs_02.jsonl": "748f63308d9fd21834532be3b7907a67ee20879dbbd87b43d9a35e4bb9545da3",
+  "closed/cs_04.jsonl": "a6d10aa95d75730852733c8360e1fc25cc1bbc7361b194510dc3a230f07cf0e3",
+  "closed/cs_05.jsonl": "47147ff5272413eb21451bbd9140d854f07c43d891d0bacd6991174f5b36150d",
+  "sites.json": "6f7992d40bf58627c9a8430b0addd69cbd1b4e939aae5a745a7ec0978b456b61"
+ },
+ "generated_at": "2026-10-22T02:34:19.540586+00:00",
+ "generator_models": {
+  "case_gen": "nvidia/nemotron-3-super-120b-a12b",
+  "case_gen_adversarial": "nvidia/Nemotron-3-Ultra-550b-a55b"
+ },
+ "methods": {
+  "cs_01": {
+   "closed_model": 24
+  },
+  "cs_02": {
+   "closed_model": 24
+  },
+  "cs_04": {
+   "closed_model": 24
+  },
+  "cs_05": {
+   "closed_model": 24
+  }
+ }
+}
